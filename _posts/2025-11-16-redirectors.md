@@ -100,3 +100,16 @@ Another unusual issue we encountered when writing the redirector's upstream conn
 ```
 
 This forces IPv4, if we encounter a situation where only IPv6 is available we'll need to revist this and add some form of failover but for now it's working.
+
+
+## Best Practices
+
+When deploying redirector infrastructure, there are several best practices to follow for improved operational security.
+
+First, always deploy multiple redirectors rather than relying on a single point of failure. This redundancy ensures that if one redirector is detected and blocked, the remaining agents will be able to callback through your the remaining redirectors, maintaining persistent access to your deployed agents.
+
+Second, ensure that each redirector uses a unique IP address, DNS domain, and hosting provider. This diversity makes it significantly more difficult for defenders to perform infrastructure correlation and takedown operations, as blocking or seizing one redirector provides minimal intelligence about the others and doesn't impact overall operations.
+
+Finally, deploy your Tavern C2 server in a non-default VPC with strict network access controls that block all inbound connections except those originating from your authorized redirectors. This network segmentation provides defense in depth, ensuring that even if your redirector locations are discovered, attackers cannot directly access or attack the core C2 infrastructure without first compromising a redirector.
+
+
