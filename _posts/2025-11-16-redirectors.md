@@ -37,7 +37,10 @@ Additionally, multiple transports provide critical flexibility in restricted net
 
 
 ## Implementation
-Killing two birds with one stone we've created a new sub-command in tavern `redirector`.
+
+Normally redirectors are just a reverse proxy using something like nginx or apache, they may even be as simple as a socat redirect. These approaches work in most situtations however because GRPC is still a newer protocol we've run into a number of edge cases when using exsting solutions. None of these issues were blockers but caused us or other users to lose time modifynig configuration. 
+
+In an attempt to solve both the needs above and improve users quality of life we've created a new sub-command in tavern `redirector`.
 This allows you to do traditional redirection using the `./tavern redirector --grpc` command to forward grpc connections from the current host to an upstream Tavern server.
 
 But we've also added a redirector per transport allowing developers to have full control over the transport from agent to server. Currently we've only implemented HTTP1 but are looknig forward to adding more.
@@ -70,6 +73,8 @@ func init() {
 	encoding.RegisterCodec(RawCodec{})
 }
 ```
+
+Keping communication encrypted even at the redirector layer not only simplifies key management but also that redirectors can be run in untrusted locations.
 
 Another unusual issue we encountered when writing the redirector's upstream connection is that grpc prefers ipv6 but many networks (my home network included) don't support IPv6. The GRPC client will use only ipv6 if a AAAA record is present and GCP Cloud Run provisions AAAA records for workloads. To get around this we added a custom dialer to the client that manually resolves, and connects to the upstream tavern server.
 
