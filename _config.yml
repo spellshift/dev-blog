@@ -98,7 +98,7 @@ share-links-active:
 
 # How to display the link to your website in the footer
 # Remove this if you don't want a link in the footer
-url-pretty: "spellshift.github.io/dev-blog"
+url-pretty: "blog.realm.pub"
 
 # Add the website title to the title of every page
 title-on-all-pages: true
