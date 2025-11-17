@@ -20,7 +20,9 @@ author: Some Person
 ###############################################
 
 navbar-links:
+  Documentation: "https://docs.realm.pub/"
   Github: "https://github.com/spellshift"
+  Discord: "https://discord.gg/W4cfwWRNZK"
 
 ################
 # --- Logo --- #
