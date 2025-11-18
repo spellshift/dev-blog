@@ -33,6 +33,8 @@ Any application-layer encryption needs to maintain confidentiality and integrity
 
 
 ## Implementation
+[Initial PR](https://github.com/spellshift/realm/pull/971)
+[Follow-on to fix streaming](https://github.com/spellshift/realm/pull/971)
 
 Our implementation combines modern cryptographic primitives to meet these security requirements. At its core is XChaCha20-Poly1305, an authenticated encryption algorithm that provides both confidentiality through stream encryption and integrity through AEAD (Authenticated Encryption with Associated Data). This means every message is encrypted and authenticated to prevent tampering.
 
