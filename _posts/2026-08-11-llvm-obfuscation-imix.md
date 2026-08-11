@@ -172,9 +172,32 @@ We renamed the Rust field `eldritch` → `script` (wire-compatible: protobuf use
 
 - `lib/pb/build.rs` post-processes regenerated code: `content.replace("eldritch", "script")`
 - The checked-in `lib/pb/src/generated/eldritch.rs` is patched to match (so no-protoc builds agree)
-- Callers updated: `imix/src/task.rs`, tests, golem
+- Callers updated: `imix/src/task.rs` and its tests
 
 Since we weren't regenerating tavern's Go protobufs (no `protoc-gen-go` in this environment), we deliberately did the rename Rust-side in the generated source rather than in `eldritch.proto` — keeping the wire format and the Go bindings untouched. A follow-up could do it properly in the `.proto` with both codegens regenerated.
+
+> A note on golem: it also has a `tome.eldritch` accessor, but that's its own local `ParsedTome` struct (unrelated to `pb::Tome`), so we left it alone. Don't blindly grep-and-replace — verify each hit is actually the generated proto type.
+
+## Realm-side changes at a glance
+
+Everything that changed in `spellshift/realm` to reach 0:
+
+| File | Change |
+|---|---|
+| `implants/.cargo/config.toml` | `-Cstrip=debuginfo` → `-Cstrip=symbols`, added `-Zlocation-detail=none`; kept `-Cpanic=abort`/`-Cdebuginfo=0`/`-Clink-arg=-s` |
+| `implants/imix/install_scripts/install_service/main.eldritch` | renamed → `main.svc` |
+| `implants/imix/src/install.rs` | `ends_with("main.eldritch")` → `ends_with("main.svc")` |
+| `docs/_docs/user-guide/imix.md` | install docs: `main.eldritch` → `main.svc` |
+| `implants/lib/eldritch/stdlib/eldritch-libfile/src/std/temp_file_impl.rs` | `"eldritch_{}"` → `"tmp_{}"` |
+| `implants/lib/pb/build.rs` | post-processes regenerated `eldritch.rs`: `replace("eldritch", "script")` |
+| `implants/lib/pb/src/generated/eldritch.rs` | checked-in generated copy: `pub eldritch` → `pub script` (+ doc) |
+| `implants/imix/src/task.rs` | `tome.eldritch` → `tome.script` |
+| `implants/imix/src/tests/task_tests.rs` | 5 `Tome { eldritch: ... }` constructions → `script:` |
+
+**Deliberately NOT included:**
+
+- `implants/rust-toolchain` was flipped `1.91.1` → `nightly` during the OLLVM experiments, but that's stale cruft, not part of the fix — every working build pinned `+nightly-2025-08-01` explicitly. Revert it, or pin it to a specific nightly if you want it committed.
+- The `-Zllvm-plugins` / `-Cpasses` flags were **left out** of the final config since the plugin/rustc LLVM ABI mismatch crashes the build on `rustls` (see Trap #2). They belong in the config only once the plugin is built against rustc's exact LLVM.
 
 ## The result
 
